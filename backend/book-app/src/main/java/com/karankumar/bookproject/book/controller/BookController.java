@@ -41,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,45 +70,41 @@ public class BookController {
     this.modelMapper.addConverter(bookFormatConverter);
   }
 
-  Converter<String, PredefinedShelf> predefinedShelfConverter =
-      new AbstractConverter<>() {
-        @Override
-        public PredefinedShelf convert(String predefinedShelfName) {
-          Optional<PredefinedShelf.ShelfName> optionalShelfName =
-              PredefinedShelfService.getPredefinedShelfName(predefinedShelfName);
+  Converter<String, PredefinedShelf> predefinedShelfConverter = new AbstractConverter<>() {
+    @Override
+    public PredefinedShelf convert(String predefinedShelfName) {
+      Optional<PredefinedShelf.ShelfName> optionalShelfName = PredefinedShelfService
+          .getPredefinedShelfName(predefinedShelfName);
 
-          if (optionalShelfName.isEmpty()) {
-            String errorMessage =
-                String.format("%s does not match a predefined shelf", predefinedShelfName);
-            throw new IllegalStateException(errorMessage);
-          }
+      if (optionalShelfName.isEmpty()) {
+        String errorMessage = String.format("%s does not match a predefined shelf", predefinedShelfName);
+        throw new IllegalStateException(errorMessage);
+      }
 
-          Optional<PredefinedShelf> optionalPredefinedShelf =
-              predefinedShelfService.getPredefinedShelfByPredefinedShelfName(
-                  optionalShelfName.get());
+      Optional<PredefinedShelf> optionalPredefinedShelf = predefinedShelfService
+          .getPredefinedShelfByPredefinedShelfName(
+              optionalShelfName.get());
 
-          if (optionalPredefinedShelf.isEmpty()) {
-            // TODO: throw custom exception
-            throw new IllegalStateException();
-          }
+      if (optionalPredefinedShelf.isEmpty()) {
+        // TODO: throw custom exception
+        throw new IllegalStateException();
+      }
 
-          return optionalPredefinedShelf.get();
-        }
-      };
+      return optionalPredefinedShelf.get();
+    }
+  };
 
-  Converter<String, BookGenre> bookGenreConverter =
-      new AbstractConverter<>() {
-        public BookGenre convert(String bookGenreString) {
-          return BookGenre.valueOf(bookGenreString);
-        }
-      };
+  Converter<String, BookGenre> bookGenreConverter = new AbstractConverter<>() {
+    public BookGenre convert(String bookGenreString) {
+      return BookGenre.valueOf(bookGenreString);
+    }
+  };
 
-  Converter<String, BookFormat> bookFormatConverter =
-      new AbstractConverter<>() {
-        public BookFormat convert(String bookFormatString) {
-          return BookFormat.valueOf(bookFormatString);
-        }
-      };
+  Converter<String, BookFormat> bookFormatConverter = new AbstractConverter<>() {
+    public BookFormat convert(String bookFormatString) {
+      return BookFormat.valueOf(bookFormatString);
+    }
+  };
 
   @GetMapping()
   // TODO: only retrieve books that belong to the logged in user
@@ -131,30 +128,28 @@ public class BookController {
     return bookService
         .findById(id)
         .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
+            () -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
   }
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
-  public Optional<Book> addBook(@RequestBody BookDto bookDto) {
+  public Optional<Book> addBook(@Valid @RequestBody BookDto bookDto) {
     Book bookToAdd = convertToBook(bookDto);
-    // TODO: check whether the book to save has a title, an author and a predefined shelf. If not,
+    // TODO: check whether the book to save has a title, an author and a predefined
+    // shelf. If not,
     // throw a 400-level exception
     return bookService.save(bookToAdd);
   }
 
   @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  public Book update(@PathVariable Long id, @RequestBody BookPatchDto bookPatchDto) {
-    final Book bookToUpdate =
-        bookService
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
+  public Book update(@PathVariable Long id, @Valid @RequestBody BookPatchDto bookPatchDto) {
+    final Book bookToUpdate = bookService
+        .findById(id)
+        .orElseThrow(
+            () -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
     return bookService.updateBook(bookToUpdate, bookPatchDto);
   }
 

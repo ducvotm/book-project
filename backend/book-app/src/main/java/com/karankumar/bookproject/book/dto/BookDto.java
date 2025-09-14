@@ -22,6 +22,8 @@ import com.karankumar.bookproject.ExcludeFromJacocoGeneratedReport;
 import com.karankumar.bookproject.book.model.Author;
 import lombok.Data;
 import javax.persistence.Id;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 
 @Data
 @ExcludeFromJacocoGeneratedReport
@@ -31,23 +33,25 @@ public class BookDto {
   private Long id;
 
   @JsonProperty("title")
+  @NotNull(message = "Title is required")
+  @NotBlank(message = "Title cannot be empty")
   private String title;
 
   @JsonProperty("numberOfPages")
+  @Min(value = 1, message = "Number of pages must be at least 1")
+  @Max(value = 23000, message = "Number of pages cannot exceed 23,000")
   private Integer numberOfPages;
 
   @JsonProperty("pagesRead")
   private Integer pagesRead;
 
   @JsonProperty("bookGenre")
-  private String
-      bookGenre; // currently need to use the constant names in request body (use "HORROR" vs
-                 // "Horror")
+  private String bookGenre; // currently need to use the constant names in request body (use "HORROR" vs
+                            // "Horror")
 
   @JsonProperty("bookFormat")
-  private String
-      bookFormat; // currently need to use the constant names in request body (use "EBOOK" vs
-                  // "eBook")
+  private String bookFormat; // currently need to use the constant names in request body (use "EBOOK" vs
+                             // "eBook")
 
   @JsonProperty("seriesPosition")
   private Integer seriesPosition;
@@ -65,9 +69,13 @@ public class BookDto {
   private Integer yearOfPublication;
 
   @JsonProperty("author")
+  @NotNull(message = "Author is required")
+  @Valid
   private Author author;
 
   @JsonProperty("predefinedShelf")
+  @NotNull(message = "Predefined shelf is required")
+  @Pattern(regexp = "To read|Reading|Read|Did not finish", message = "Invalid shelf. Valid options: To read, Reading, Read, Did not finish")
   private String predefinedShelf;
 
   @JsonProperty("bookReview")

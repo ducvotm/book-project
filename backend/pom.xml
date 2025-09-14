@@ -32,7 +32,7 @@
         <jjwt-impl.version>0.11.2</jjwt-impl.version>
         <jjwt-jackson.version>0.11.2</jjwt-jackson.version>
         <json-patch.version>1.13</json-patch.version>
-        <lombok.version>1.18.20</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <mockito-core.version>3.4.6</mockito-core.version>
         <modelmapper.version>2.4.3</modelmapper.version>
         <sevntu-checks.version>1.37.1</sevntu-checks.version>
