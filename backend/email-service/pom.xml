@@ -9,13 +9,20 @@
         <configuration>
           <source>11</source>
           <target>11</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
     </plugins>
   </build>
   <parent>
     <artifactId>book-project</artifactId>
-    <groupId>com.karankumar</groupId>
+    <groupId>com.duke</groupId>
     <version>0.2.0</version>
   </parent>
 
@@ -36,7 +43,7 @@
   <dependencies>
     <!-- https://mvnrepository.com/artifact/com.icegreen/greenmail -->
     <dependency>
-      <groupId>com.karankumar</groupId>
+      <groupId>com.duke</groupId>
       <artifactId>commons</artifactId>
       <version>0.2.0</version>
     </dependency>

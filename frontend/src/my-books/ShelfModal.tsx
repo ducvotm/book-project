@@ -15,15 +15,15 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { Component } from "react";
-import Modal, { IModalProps } from "../shared/components/Modal";
 import Button from "@material-ui/core/Button";
+import Hidden from "@material-ui/core/Hidden";
 import TextField from "@material-ui/core/TextField";
 import Alert from "@material-ui/lab/Alert";
-import "./ShelfModal.css";
-import Hidden from "@material-ui/core/Hidden";
-import HttpClient from "../shared/http/HttpClient";
+import React, { Component } from "react";
 import Endpoints from "../shared/api/endpoints";
+import Modal, { IModalProps } from "../shared/components/Modal";
+import HttpClient from "../shared/http/HttpClient";
+import "./ShelfModal.css";
 
 type MyState = { name: string, showError: boolean, showInfo: boolean, msg: string };
 export default class ShelfModal extends Component<IModalProps, MyState> {

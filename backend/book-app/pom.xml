@@ -15,6 +15,13 @@
         <configuration>
           <source>11</source>
           <target>11</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
@@ -32,7 +39,7 @@
   </build>
 
   <parent>
-    <groupId>com.karankumar</groupId>
+    <groupId>com.duke</groupId>
     <artifactId>book-project</artifactId>
     <version>0.2.0</version>
   </parent>
@@ -50,12 +57,12 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.karankumar</groupId>
+      <groupId>com.duke</groupId>
       <artifactId>commons</artifactId>
       <version>0.2.0</version>
     </dependency>
     <dependency>
-      <groupId>com.karankumar</groupId>
+      <groupId>com.duke</groupId>
       <artifactId>email-service</artifactId>
       <version>0.2.0</version>
     </dependency>
