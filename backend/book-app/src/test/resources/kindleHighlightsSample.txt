@@ -1,0 +1,30 @@
+﻿nexus_yuval noah harari (Yuval Noah Harari)
+- Your Highlight on page xiii | Location 103-104 | Added on Monday, September 15, 2025 2:43:26 PM
+
+Power always stems from cooperation between large numbers of humans.
+==========
+﻿nexus_yuval noah harari (Yuval Noah Harari)
+- Your Highlight on page xiv | Location 115-116 | Added on Monday, September 15, 2025 2:46:19 PM
+
+As George Orwell famously put it, ignorance is strength.
+==========
+﻿coders at work reflections on the craft of program (Peter Seibel)
+- Your Highlight on page 42 | Location 523-524 | Added on Wednesday, September 17, 2025 8:53:37 PM
+
+I really enjoyed doing the Mac port of the XScreenSaver framework. That was actually writing a lot of new code that required thinking about APIs and the structure of the thing.
+==========
+﻿coders at work reflections on the craft of program (Peter Seibel)
+- Your Highlight on page 46 | Location 589-590 | Added on Wednesday, September 17, 2025 9:06:06 PM
+
+The design process is definitely an ongoing thing; you never know what the
+==========
+﻿coders at work reflections on the craft of program (Peter Seibel)
+- Your Highlight on page 46 | Location 589-590 | Added on Wednesday, September 17, 2025 9:06:17 PM
+
+The design process is definitely an ongoing thing; you never know what the
+==========
+﻿coders at work reflections on the craft of program (Peter Seibel)
+- Your Highlight on page 46 | Location 589-590 | Added on Wednesday, September 17, 2025 9:06:24 PM
+
+The design process is definitely an ongoing thing; you never know what the design is until the program is done.
+==========
