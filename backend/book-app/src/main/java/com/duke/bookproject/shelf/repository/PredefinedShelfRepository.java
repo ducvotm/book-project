@@ -42,10 +42,9 @@ public interface PredefinedShelfRepository extends JpaRepository<PredefinedShelf
   @EntityGraph(value = "PredefinedShelf.books")
   List<PredefinedShelf> findAll();
 
-  @Query(
-      "SELECT p "
-          + "FROM PredefinedShelf p "
-          + "LEFT JOIN p.books AS b "
-          + "WHERE p.predefinedShelfName = com.karankumar.bookproject.book.model.PredefinedShelfName.READ")
+  @Query("SELECT p "
+      + "FROM PredefinedShelf p "
+      + "LEFT JOIN p.books AS b "
+      + "WHERE p.predefinedShelfName = com.duke.bookproject.shelf.model.PredefinedShelf$ShelfName.READ")
   List<PredefinedShelf> findReadShelf2();
 }
