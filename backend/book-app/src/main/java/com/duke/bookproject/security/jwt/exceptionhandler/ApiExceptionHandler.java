@@ -22,13 +22,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+@RestControllerAdvice
 @ExcludeFromJacocoGeneratedReport
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException e) {
+            HttpStatus status = e.getStatus();
+
+            ErrorResponse errorResponse = createErrorResponse(status)
+                    .error(status.getReasonPhrase())
+                    .message(e.getReason())
+                    .build();
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Object> handleDefaultException(Exception e) {
