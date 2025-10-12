@@ -26,6 +26,15 @@ class KindleHighlightsParserTest {
    }
 
    @Test
+   void shouldParseBookTitleWithBOM() {
+      String line = "\uFEFFnexus_yuval noah harari (Yuval Noah Harari)";
+
+      String result = parser.parseTitle(line);
+
+      assertThat(result).isEqualTo("nexus_yuval noah harari");
+   }
+
+   @Test
    void shouldParseAuthor() {
       // GIVEN
       String line = "nexus_yuval noah harari (Yuval Noah Harari)";

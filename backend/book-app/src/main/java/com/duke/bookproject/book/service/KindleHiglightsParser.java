@@ -12,7 +12,13 @@ public class KindleHiglightsParser {
 
 	public String parseTitle(String line) {
 		int indexOfOpenParentheses = line.indexOf('(');
-		return line.substring(0, indexOfOpenParentheses).trim();
+		String title = line.substring(0, indexOfOpenParentheses).trim();
+
+		if (title.startsWith("\uFEFF")) {
+			title = title.substring(1);
+		}
+
+		return title;
 	}
 
 	public String parseAuthor(String line) {
