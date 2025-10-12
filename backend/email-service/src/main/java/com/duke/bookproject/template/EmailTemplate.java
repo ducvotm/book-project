@@ -14,15 +14,15 @@ If not, see <https://www.gnu.org/licenses/>.
 
 package com.duke.bookproject.template;
 
-import com.duke.bookproject.ExcludeFromJacocoGeneratedReport;
 import com.duke.bookproject.constant.EmailConstant;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@ExcludeFromJacocoGeneratedReport
 public class EmailTemplate {
-  private EmailTemplate() {}
+  private EmailTemplate() {
+  }
 
   public static Map<String, Object> getAccountCreatedEmailTemplate(String username) {
     Map<String, Object> templateModel = getTemplate(username);
@@ -39,6 +39,23 @@ public class EmailTemplate {
   public static Map<String, Object> getChangePasswordEmailTemplate(String username) {
     Map<String, Object> templateModel = getTemplate(username);
     templateModel.put("text", EmailConstant.ACCOUNT_PASSWORD_CHANGED_MESSAGE);
+    return templateModel;
+  }
+
+  public static Map<String, Object> getKindleHighlightsEmailTemplate(String username,
+      List<Map<String, String>> highlights) {
+    Map<String, Object> templateModel = getTemplate(username);
+
+    StringBuilder highlightsText = new StringBuilder();
+    highlightsText.append("Here are your Kindle highlights:\n\n");
+
+    for (Map<String, String> highlight : highlights) {
+      highlightsText.append("Book: ").append(highlight.get("title")).append("\n");
+      highlightsText.append("Author: ").append(highlight.get("author")).append("\n");
+      highlightsText.append("Quote: ").append(highlight.get("content")).append("\n\n");
+    }
+
+    templateModel.put("text", highlightsText.toString());
     return templateModel;
   }
 
