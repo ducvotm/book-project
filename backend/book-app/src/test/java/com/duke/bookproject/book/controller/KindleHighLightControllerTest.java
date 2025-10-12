@@ -1,6 +1,9 @@
 package com.duke.bookproject.book.controller;
 
+import com.duke.bookproject.account.model.User;
+import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.model.KindleHighLight;
+import com.duke.bookproject.book.service.EmailService;
 import com.duke.bookproject.book.service.KindleHighLightService;
 import com.duke.bookproject.book.service.KindleHiglightsParser;
 import org.junit.jupiter.api.Test;
@@ -8,29 +11,38 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
 
 class KindleHighLightControllerTest {
 
    private final KindleHighLightController controller;
    private final KindleHighLightService mockedService;
    private final KindleHiglightsParser mockedParser;
+   private final EmailService mockedEmailService;
+   private final UserService mockedUserService;
 
    KindleHighLightControllerTest() {
       mockedService = mock(KindleHighLightService.class);
       mockedParser = mock(KindleHiglightsParser.class);
-      controller = new KindleHighLightController(mockedService, mockedParser);
+      mockedEmailService = mock(EmailService.class);
+      mockedUserService = mock(UserService.class);
+      controller = new KindleHighLightController(mockedService, mockedParser, mockedEmailService, mockedUserService);
    }
 
    @Test
@@ -117,5 +129,44 @@ class KindleHighLightControllerTest {
       verify(mockedService).saveAll(anyList());
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).contains("1");
+   }
+
+   @Test
+   void emailHighlights_sendsEmail_whenHighlightsExist() throws MessagingException {
+      List<KindleHighLight> highlights = new ArrayList<>();
+      highlights.add(KindleHighLight.builder()
+            .title("Nexus")
+            .author("Yuval Noah Harari")
+            .content("Power always stems from cooperation")
+            .build());
+      highlights.add(KindleHighLight.builder()
+            .title("Coders at Work")
+            .author("Peter Seibel")
+            .content("The design process is definitely an ongoing thing")
+            .build());
+
+      User mockUser = User.builder().email("user@example.com").build();
+      when(mockedService.findAll()).thenReturn(highlights);
+      when(mockedUserService.getCurrentUser()).thenReturn(mockUser);
+
+      ResponseEntity<String> response = controller.emailHighlights();
+
+      verify(mockedEmailService, times(1)).sendMessageUsingThymeleafTemplate(
+            eq("user@example.com"),
+            anyString(),
+            anyMap());
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isEqualTo("Email sent successfully");
+   }
+
+   @Test
+   void emailHighlights_returnsMessage_whenNoHighlights() throws MessagingException {
+      when(mockedService.findAll()).thenReturn(new ArrayList<>());
+
+      ResponseEntity<String> response = controller.emailHighlights();
+
+      verify(mockedEmailService, times(0)).sendMessageUsingThymeleafTemplate(anyString(), anyString(), anyMap());
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).isEqualTo("No highlights to email");
    }
 }
