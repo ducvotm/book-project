@@ -1,0 +1,1 @@
+use cs50 rules
