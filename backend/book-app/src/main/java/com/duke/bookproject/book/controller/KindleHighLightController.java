@@ -95,8 +95,8 @@ public class KindleHighLightController {
         List<Map<String, String>> highlightMaps = new ArrayList<>();
         for (KindleHighLight highlight : highlights) {
             Map<String, String> highlightMap = new HashMap<>();
-            highlightMap.put("title", highlight.getTitle());
-            highlightMap.put("author", highlight.getAuthor());
+            highlightMap.put("title", highlight.getBook().getTitle());
+            highlightMap.put("author", highlight.getBook().getAuthor());
             highlightMap.put("content", highlight.getContent());
             highlightMaps.add(highlightMap);
         }

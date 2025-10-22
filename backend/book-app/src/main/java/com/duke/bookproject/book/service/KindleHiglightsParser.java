@@ -36,7 +36,7 @@ public class KindleHiglightsParser {
 		String content = lines[3].trim();
 
 		return KindleHighLight.builder()
-				.title(title)
+				.book.getTitle(title)
 				.author(author)
 				.content(content)
 				.build();

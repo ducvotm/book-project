@@ -17,9 +17,12 @@
 
 package com.duke.bookproject.book.dto;
 
+import com.duke.bookproject.account.model.User;
+import com.duke.bookproject.book.model.KindleHighLight;
 import com.duke.bookproject.bookimport.GoodreadsBookImport;
 import com.duke.bookproject.shelf.model.PredefinedShelf;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,35 +31,30 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("GoodreadsBookImport should")
-class GoodreadsBookImportTest {
-  @ParameterizedTest
-  @ValueSource(strings = {"to-read", "currently-reading", "read"})
-  void returnPredefinedShelfOnMatch(String shelfName) {
-    // when
-    Optional<PredefinedShelf.ShelfName> actual =
-        GoodreadsBookImport.toPredefinedShelfName(shelfName);
+@DisplayName("KindleHighlights should")
+class KindleHighlightImportTest {
 
-    // then
-    assertThat(actual).isNotEmpty();
-  }
+    @Test
+    void requireBook() {
+        //Given
+        KindleHighLight kindleHighLight = new KindleHighLight();
 
-  @ParameterizedTest
-  @MethodSource("generateInvalidShelfNames")
-  void returnEmptyForInvalidShelfName() {
-    // given
-    String invalidShelfName = "shelf";
+        assertThatThrownBy(() -> {
+           kindleHighLight.setBook(null);
+        })
+        .isInstanceOf(NullPointerException.class);
+    }
 
-    // when
-    Optional<PredefinedShelf.ShelfName> actual =
-        GoodreadsBookImport.toPredefinedShelfName(invalidShelfName);
+    @Test
+    void requireUser() {
+        KindleHighLight kindleHighLight = new KindleHighLight();
+        assertThatThrownBy(() -> {
+            kindleHighLight.setUser(null);
+        })
+        .isInstanceOf(NullPointerException.class);
+    }
 
-    // then
-    assertThat(actual).isEmpty();
-  }
-
-  private static Stream<String> generateInvalidShelfNames() {
-    return Stream.of("", " ", "shelf", null);
-  }
 }
+
