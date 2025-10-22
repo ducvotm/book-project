@@ -3,6 +3,7 @@ package com.duke.bookproject.book.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.duke.bookproject.account.model.User;
@@ -18,13 +19,14 @@ public class KindleHighLight {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+    @NotNull @NotBlank
+    private String userEmail;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "book_id", nullable = false)
-	private Book book;
+    @NotNull @NotBlank
+    private String title;
+
+    @NotNull @NotBlank
+    private String author;
 
 	private String content;
 

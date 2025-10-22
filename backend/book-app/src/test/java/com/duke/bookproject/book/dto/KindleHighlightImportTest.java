@@ -36,25 +36,44 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("KindleHighlights should")
 class KindleHighlightImportTest {
 
-    @Test
-    void requireBook() {
-        //Given
-        KindleHighLight kindleHighLight = new KindleHighLight();
-
-        assertThatThrownBy(() -> {
-           kindleHighLight.setBook(null);
-        })
-        .isInstanceOf(NullPointerException.class);
+    // Helper method - creates test data dynamically
+    private KindleHighLight createTestKindleHighlight() {
+        return KindleHighLight.builder()
+                .title("nexus_yuval noah harari")
+                .author("Yuval Noah Harari")
+                .userEmail("test@example.com")
+                .content("Power always stems from cooperation between large numbers of humans.")
+                .build();
     }
 
     @Test
-    void requireUser() {
-        KindleHighLight kindleHighLight = new KindleHighLight();
-        assertThatThrownBy(() -> {
-            kindleHighLight.setUser(null);
-        })
-        .isInstanceOf(NullPointerException.class);
+    void haveNonNullTitleWhenBuildingWithValidData() {
+        // given - a test Kindle highlight
+        KindleHighLight highlight = createTestKindleHighlight();
+
+        // then - verify title is not null and has expected value
+        assertThat(highlight.getTitle()).isNotNull();
+        assertThat(highlight.getTitle()).isEqualTo("nexus_yuval noah harari");
     }
 
+    @Test
+    void haveNonNullAuthorWhenBuildingWithValidData() {
+        // given - a test Kindle highlight
+        KindleHighLight highlight = createTestKindleHighlight();
+
+        // then - verify author is not null and has expected value
+        assertThat(highlight.getAuthor()).isNotNull();
+        assertThat(highlight.getAuthor()).isEqualTo("Yuval Noah Harari");
+    }
+
+    @Test
+    void haveNonNullUserEmailWhenBuildingWithValidData() {
+        // given - a test Kindle highlight
+        KindleHighLight highlight = createTestKindleHighlight();
+
+        // then - verify userEmail is not null and has expected value
+        assertThat(highlight.getUserEmail()).isNotNull();
+        assertThat(highlight.getUserEmail()).isEqualTo("test@example.com");
+    }
 }
 

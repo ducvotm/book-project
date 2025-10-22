@@ -1,6 +1,9 @@
 package com.duke.bookproject.book.service;
 
+import com.duke.bookproject.account.model.User;
+import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.model.KindleHighLight;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -9,6 +12,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class KindleHiglightsParser {
+    private final UserService userService;
+
+    public KindleHiglightsParser(UserService userService) {
+        this.userService = userService;
+    }
 
 	public String parseTitle(String line) {
 		int indexOfOpenParentheses = line.indexOf('(');
@@ -35,11 +43,15 @@ public class KindleHiglightsParser {
 
 		String content = lines[3].trim();
 
+        String userEmail = userService.getCurrentUser().getEmail();
+
 		return KindleHighLight.builder()
-				.book.getTitle(title)
-				.author(author)
-				.content(content)
-				.build();
+                .userEmail(userEmail)
+                .author(author)
+                .title(title)
+                .content(content)
+                .build();
+
 	}
 
 	public List<KindleHighLight> parseMultipleHighlights(String fileContent) {
