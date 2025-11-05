@@ -6,9 +6,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import com.duke.bookproject.account.model.User;
-import com.duke.bookproject.book.model.Book;
-
 @Entity
 @Data
 @AllArgsConstructor
@@ -19,14 +16,17 @@ public class KindleHighLight {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-    @NotNull @NotBlank
-    private String userEmail;
+	@NotNull
+	@NotBlank
+	private String userEmail;
 
-    @NotNull @NotBlank
-    private String title;
+	@NotNull
+	@NotBlank
+	private String title;
 
-    @NotNull @NotBlank
-    private String author;
+	@NotNull
+	@NotBlank
+	private String author;
 
 	private String content;
 
