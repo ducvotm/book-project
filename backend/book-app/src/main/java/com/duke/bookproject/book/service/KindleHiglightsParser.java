@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class KindleHiglightsParser {
-    private final UserService userService;
+	private final UserService userService;
 
-    public KindleHiglightsParser(UserService userService) {
-        this.userService = userService;
-    }
+	public KindleHiglightsParser(UserService userService) {
+		this.userService = userService;
+	}
 
 	public String parseTitle(String line) {
 		int indexOfOpenParentheses = line.indexOf('(');
@@ -43,14 +43,14 @@ public class KindleHiglightsParser {
 
 		String content = lines[3].trim();
 
-        String userEmail = userService.getCurrentUser().getEmail();
+		String userEmail = userService.getCurrentUser().getEmail();
 
 		return KindleHighLight.builder()
-                .userEmail(userEmail)
-                .author(author)
-                .title(title)
-                .content(content)
-                .build();
+				.userEmail(userEmail)
+				.author(author)
+				.title(title)
+				.content(content)
+				.build();
 
 	}
 

@@ -17,11 +17,11 @@
 
 package com.duke.bookproject.book.service;
 
+import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.book.model.Author;
 import com.duke.bookproject.book.model.Book;
-import com.duke.bookproject.shelf.model.PredefinedShelf;
-import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.book.repository.BookRepository;
+import com.duke.bookproject.shelf.model.PredefinedShelf;
 import com.duke.bookproject.shelf.service.PredefinedShelfService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -44,16 +43,18 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceTest {
-  @Mock private BookRepository bookRepository;
+  @Mock
+  private BookRepository bookRepository;
   private BookService bookService;
+  private User user;
 
   @BeforeEach
   public void setUp() {
     AuthorService authorService = mock(AuthorService.class);
     PublisherService publisherService = mock(PublisherService.class);
     PredefinedShelfService predefinedShelfService = mock(PredefinedShelfService.class);
-    bookService =
-        new BookService(bookRepository, authorService, publisherService, predefinedShelfService);
+    bookService = new BookService(bookRepository, authorService, publisherService, predefinedShelfService);
+    user = User.builder().email("user@example.com").password("password").build();
   }
 
   @Test
@@ -118,22 +119,28 @@ class BookServiceTest {
   }
 
   @Test
-  void canFindAll() {
-    int page = 0;
-    bookService.findAll(page);
-    verify(bookRepository).findAllBooks(any(Pageable.class));
+  void canFindAllForUser() {
+    bookService.findAllForUser(user);
+    verify(bookRepository).findAllBooksForUser(user);
+  }
+
+  @Test
+  void findAllForUser_throwsException_whenUserIsNull() {
+    assertThatExceptionOfType(NullPointerException.class)
+        .isThrownBy(() -> bookService.findAllForUser(null));
+    verify(bookRepository, never()).findAllBooksForUser(any(User.class));
   }
 
   @Test
   void findAll_searchesWithoutFilter_ifFilterIsNull() {
     bookService.findAll((String) null);
-    verify(bookRepository).findAllBooks(any(Pageable.class));
+    verify(bookRepository).findAll();
   }
 
   @Test
   void findAll_searchesWithoutFilter_ifFilterIsEmpty() {
     bookService.findAll("");
-    verify(bookRepository).findAllBooks(any(Pageable.class));
+    verify(bookRepository).findAll();
   }
 
   @Test
@@ -160,9 +167,9 @@ class BookServiceTest {
     verify(bookRepository).deleteAll();
   }
 
-  //    @Test
-  //    void canFindByTitleOrAuthor() {
-  //        bookService.findByTitleOrAuthor("test", "author");
-  //        verify(bookRepository).findByTitleOrAuthor(anyString(), anyString());
-  //    }
+  // @Test
+  // void canFindByTitleOrAuthor() {
+  // bookService.findByTitleOrAuthor("test", "author");
+  // verify(bookRepository).findByTitleOrAuthor(anyString(), anyString());
+  // }
 }

@@ -14,6 +14,8 @@
 
 package com.duke.bookproject.book.controller;
 
+import com.duke.bookproject.account.model.User;
+import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.dto.BookDto;
 import com.duke.bookproject.book.dto.BookPatchDto;
 import com.duke.bookproject.book.model.Book;
@@ -49,124 +51,133 @@ import java.util.Optional;
 @RequestMapping("/api/books")
 public class BookController {
 
-  private final BookService bookService;
-  private final PredefinedShelfService predefinedShelfService;
-  private final ModelMapper modelMapper;
+	private final BookService bookService;
+	private final UserService userService;
+	private final PredefinedShelfService predefinedShelfService;
+	private final ModelMapper modelMapper;
 
-  private static final String BOOK_NOT_FOUND_ERROR_MESSAGE = "Could not find book with ID %d";
-  public static final String NEGATIVE_PAGE_ERROR_MESSAGE = "Could not retrieve page with number %d";
+	private static final String BOOK_NOT_FOUND_ERROR_MESSAGE = "Could not find book with ID %d";
+	public static final String NEGATIVE_PAGE_ERROR_MESSAGE = "Could not retrieve page with number %d";
 
-  @Autowired
-  public BookController(
-      BookService bookService,
-      PredefinedShelfService predefinedShelfService,
-      ModelMapper modelMapper) {
-    this.bookService = bookService;
-    this.predefinedShelfService = predefinedShelfService;
-    this.modelMapper = modelMapper;
+	@Autowired
+	public BookController(
+			BookService bookService,
+			UserService userService,
+			PredefinedShelfService predefinedShelfService,
+			ModelMapper modelMapper) {
+		this.bookService = bookService;
+		this.userService = userService;
+		this.predefinedShelfService = predefinedShelfService;
+		this.modelMapper = modelMapper;
 
-    this.modelMapper.addConverter(predefinedShelfConverter);
-    this.modelMapper.addConverter(bookGenreConverter);
-    this.modelMapper.addConverter(bookFormatConverter);
-  }
+		this.modelMapper.addConverter(predefinedShelfConverter);
+		this.modelMapper.addConverter(bookGenreConverter);
+		this.modelMapper.addConverter(bookFormatConverter);
+	}
 
-  Converter<String, PredefinedShelf> predefinedShelfConverter = new AbstractConverter<>() {
-    @Override
-    public PredefinedShelf convert(String predefinedShelfName) {
-      Optional<PredefinedShelf.ShelfName> optionalShelfName = PredefinedShelfService
-          .getPredefinedShelfName(predefinedShelfName);
+	Converter<String, PredefinedShelf> predefinedShelfConverter = new AbstractConverter<>() {
+		@Override
+		public PredefinedShelf convert(String predefinedShelfName) {
+			Optional<PredefinedShelf.ShelfName> optionalShelfName = PredefinedShelfService
+					.getPredefinedShelfName(predefinedShelfName);
 
-      if (optionalShelfName.isEmpty()) {
-        String errorMessage = String.format("%s does not match a predefined shelf", predefinedShelfName);
-        throw new IllegalStateException(errorMessage);
-      }
+			if (optionalShelfName.isEmpty()) {
+				String errorMessage = String.format("%s does not match a predefined shelf",
+						predefinedShelfName);
+				throw new IllegalStateException(errorMessage);
+			}
 
-      Optional<PredefinedShelf> optionalPredefinedShelf = predefinedShelfService
-          .getPredefinedShelfByPredefinedShelfName(
-              optionalShelfName.get());
+			Optional<PredefinedShelf> optionalPredefinedShelf = predefinedShelfService
+					.getPredefinedShelfByPredefinedShelfName(optionalShelfName.get());
 
-      if (optionalPredefinedShelf.isEmpty()) {
-        // TODO: throw custom exception
-        throw new IllegalStateException();
-      }
+			if (optionalPredefinedShelf.isEmpty()) {
+				// TODO: throw custom exception
+				throw new IllegalStateException();
+			}
 
-      return optionalPredefinedShelf.get();
-    }
-  };
+			return optionalPredefinedShelf.get();
+		}
+	};
 
-  Converter<String, BookGenre> bookGenreConverter = new AbstractConverter<>() {
-    public BookGenre convert(String bookGenreString) {
-      return BookGenre.valueOf(bookGenreString);
-    }
-  };
+	Converter<String, BookGenre> bookGenreConverter = new AbstractConverter<>() {
+		public BookGenre convert(String bookGenreString) {
+			return BookGenre.valueOf(bookGenreString);
+		}
+	};
 
-  Converter<String, BookFormat> bookFormatConverter = new AbstractConverter<>() {
-    public BookFormat convert(String bookFormatString) {
-      return BookFormat.valueOf(bookFormatString);
-    }
-  };
+	Converter<String, BookFormat> bookFormatConverter = new AbstractConverter<>() {
+		public BookFormat convert(String bookFormatString) {
+			return BookFormat.valueOf(bookFormatString);
+		}
+	};
 
-  @GetMapping()
-  // TODO: only retrieve books that belong to the logged in user
-  public List<Book> all(@RequestParam(required = false) Integer page) {
-    if (page == null || page >= 0) {
-      return bookService.findAll(page);
-    } else {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, String.format(NEGATIVE_PAGE_ERROR_MESSAGE, page));
-    }
-  }
+	@GetMapping()
+	// TODO: only retrieve books that belong to the logged in user
+	public List<Book> all(@RequestParam(required = false) Integer page) {
+		User currentUser = userService.getCurrentUser();
+		if (currentUser == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User must be authenticated");
+		}
+		if (page == null || page >= 0) {
+			return bookService.findAllForUser(currentUser);
+		} else {
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, String.format(NEGATIVE_PAGE_ERROR_MESSAGE, page));
+		}
+	}
 
-  @GetMapping("/genres")
-  public BookGenre[] getGenres() {
-    return BookGenre.values();
-  }
+	@GetMapping("/genres")
+	public BookGenre[] getGenres() {
+		return BookGenre.values();
+	}
 
-  @GetMapping("/{id}")
-  // TODO: only retrieve books that belong to the logged in user
-  public Book findById(@PathVariable Long id) {
-    return bookService
-        .findById(id)
-        .orElseThrow(
-            () -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
-  }
+	@GetMapping("/{id}")
+	// TODO: only retrieve books that belong to the logged in user
+	public Book findById(@PathVariable Long id) {
+		return bookService
+				.findById(id)
+				.orElseThrow(
+						() -> new ResponseStatusException(
+								HttpStatus.NOT_FOUND,
+								String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
+	}
 
-  @PostMapping()
-  @ResponseStatus(HttpStatus.CREATED)
-  public Optional<Book> addBook(@Valid @RequestBody BookDto bookDto) {
-    Book bookToAdd = convertToBook(bookDto);
-    // TODO: check whether the book to save has a title, an author and a predefined
-    // shelf. If not,
-    // throw a 400-level exception
-    return bookService.save(bookToAdd);
-  }
+	@PostMapping()
+	@ResponseStatus(HttpStatus.CREATED)
+	public Optional<Book> addBook(@Valid @RequestBody BookDto bookDto) {
+		Book bookToAdd = convertToBook(bookDto);
+		// TODO: check whether the book to save has a title, an author and a predefined
+		// shelf. If not,
+		// throw a 400-level exception
+		return bookService.save(bookToAdd);
+	}
 
-  @PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseStatus(HttpStatus.OK)
-  public Book update(@PathVariable Long id, @Valid @RequestBody BookPatchDto bookPatchDto) {
-    final Book bookToUpdate = bookService
-        .findById(id)
-        .orElseThrow(
-            () -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
-    return bookService.updateBook(bookToUpdate, bookPatchDto);
-  }
+	@PatchMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.OK)
+	public Book update(@PathVariable Long id, @Valid @RequestBody BookPatchDto bookPatchDto) {
+		final Book bookToUpdate = bookService
+				.findById(id)
+				.orElseThrow(
+						() -> new ResponseStatusException(
+								HttpStatus.NOT_FOUND,
+								String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id)));
+		return bookService.updateBook(bookToUpdate, bookPatchDto);
+	}
 
-  private Book convertToBook(BookDto bookDto) {
-    return modelMapper.map(bookDto, Book.class);
-  }
+	private Book convertToBook(BookDto bookDto) {
+		return modelMapper.map(bookDto, Book.class);
+	}
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.OK)
-  public ResponseEntity<String> delete(@PathVariable Long id) {
-    Optional<Book> bookToDeleteOp = bookService.findById(id);
-    if (bookToDeleteOp.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body(String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id));
-    }
+	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<String> delete(@PathVariable Long id) {
+		Optional<Book> bookToDeleteOp = bookService.findById(id);
+		if (bookToDeleteOp.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(String.format(BOOK_NOT_FOUND_ERROR_MESSAGE, id));
+		}
 
-    bookService.delete(bookToDeleteOp.get());
-    return ResponseEntity.status(HttpStatus.OK).body("Deleted");
-  }
+		bookService.delete(bookToDeleteOp.get());
+		return ResponseEntity.status(HttpStatus.OK).body("Deleted");
+	}
 }

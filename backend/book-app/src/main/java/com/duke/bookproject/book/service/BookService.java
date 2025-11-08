@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.book.dto.BookPatchDto;
 import com.duke.bookproject.book.model.Author;
 import com.duke.bookproject.book.model.Book;
@@ -34,8 +35,6 @@ import com.duke.bookproject.shelf.service.PredefinedShelfService;
 import lombok.NonNull;
 import lombok.extern.java.Log;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +68,7 @@ public class BookService {
 
   public Optional<Book> findById(@NonNull Long id) {
     return bookRepository.findBookById(id);
-    //        return bookRepository.findById(id);
+    // return bookRepository.findById(id);
   }
 
   public Optional<Book> save(@NonNull Book book) {
@@ -107,15 +106,16 @@ public class BookService {
     return bookRepository.count();
   }
 
-  public List<Book> findAll(Integer pageNumber) {
-    int page = pageNumber == null ? 0 : pageNumber;
-    Pageable pageable = PageRequest.of(page, 50);
-    return bookRepository.findAllBooks(pageable);
+  public List<Book> findAllForUser(User user) {
+    if (user == null) {
+      throw new NullPointerException("User must not be null");
+    }
+    return bookRepository.findAllBooksForUser(user);
   }
 
   public List<Book> findAll(String filterText) {
     if (filterText == null || filterText.isEmpty()) {
-      return findAll(0);
+      return bookRepository.findAll();
     }
     return bookRepository.findByTitleContainingIgnoreCase(filterText);
   }
@@ -145,7 +145,8 @@ public class BookService {
 
     LOGGER.log(
         Level.INFO,
-        "Deleted all books in books & authors. Book repository size = " + bookRepository.count());
+        "Deleted all books in books & authors. Book repository size = "
+            + bookRepository.count());
   }
 
   public String getJsonRepresentationForBooksAsString() throws JsonProcessingException {
@@ -159,15 +160,16 @@ public class BookService {
     return jsonWriter.writeValueAsString(books);
   }
 
-  // TODO: split into findByShelfAndTitle and findShelfAndAuthor queries, and then merge result sets
+  // TODO: split into findByShelfAndTitle and findShelfAndAuthor queries, and then
+  // merge result sets
   public List<Book> findByShelfAndTitleOrAuthor(Shelf shelf, String title, String authorsName) {
     throw new NotImplementedException();
-    //        return bookRepository.findByShelfAndTitleOrAuthor(shelf, title, authorsName);
+    // return bookRepository.findByShelfAndTitleOrAuthor(shelf, title, authorsName);
   }
 
   public List<Book> findByTitleOrAuthor(String title, String authorsName) {
     throw new NotImplementedException();
-    //        return bookRepository.findByTitleOrAuthor(title, authorsName);
+    // return bookRepository.findByTitleOrAuthor(title, authorsName);
   }
 
   public List<Book> findAllBooksByPredefinedShelfName(ShelfName predefinedShelfName) {
