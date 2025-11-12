@@ -4,6 +4,7 @@ import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.model.KindleHighLight;
 import com.duke.bookproject.book.service.EmailService;
+import com.duke.bookproject.book.service.HighlightReminderService;
 import com.duke.bookproject.book.service.KindleHighLightService;
 import com.duke.bookproject.book.service.KindleHiglightsParser;
 import org.junit.jupiter.api.Test;
@@ -35,13 +36,15 @@ class KindleHighLightControllerTest {
    private final KindleHiglightsParser mockedParser;
    private final EmailService mockedEmailService;
    private final UserService mockedUserService;
+   private final HighlightReminderService mockedReminderService;
 
    KindleHighLightControllerTest() {
       mockedService = mock(KindleHighLightService.class);
       mockedParser = mock(KindleHiglightsParser.class);
       mockedEmailService = mock(EmailService.class);
       mockedUserService = mock(UserService.class);
-      controller = new KindleHighLightController(mockedService, mockedParser, mockedEmailService, mockedUserService);
+      mockedReminderService = mock(HighlightReminderService.class);
+      controller = new KindleHighLightController(mockedService, mockedParser, mockedEmailService, mockedUserService, mockedReminderService);
    }
 
    @Test
@@ -126,6 +129,41 @@ class KindleHighLightControllerTest {
 
       verify(mockedParser).parseMultipleHighlights(fileContent);
       verify(mockedService).saveAll(anyList());
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+      assertThat(response.getBody()).contains("1");
+   }
+
+   @Test
+   void shouldCreateReminders_whenHighlightsAreImported() {
+      String fileContent = "nexus_yuval noah harari (Yuval Noah Harari)\n" +
+            "- Your Highlight on page xiii | Location 103-104\n\n" +
+            "Power stems from cooperation";
+
+      String userEmail = "user@example.com";
+      User mockUser = User.builder().email(userEmail).build();
+
+      List<KindleHighLight> parsedHighlights = new ArrayList<>();
+      KindleHighLight highlight1 = KindleHighLight.builder()
+            .id(1L)
+            .userEmail(userEmail)
+            .title("nexus_yuval noah harari")
+            .author("Yuval Noah Harari")
+            .content("Power stems from cooperation")
+            .build();
+      parsedHighlights.add(highlight1);
+
+      List<KindleHighLight> savedHighlights = new ArrayList<>();
+      savedHighlights.add(highlight1);
+
+      when(mockedParser.parseMultipleHighlights(anyString())).thenReturn(parsedHighlights);
+      when(mockedService.saveAll(anyList())).thenReturn(savedHighlights);
+      when(mockedUserService.getCurrentUser()).thenReturn(mockUser);
+
+      ResponseEntity<String> response = controller.importHighlights(fileContent);
+
+      verify(mockedParser).parseMultipleHighlights(fileContent);
+      verify(mockedService).saveAll(parsedHighlights);
+      verify(mockedReminderService).createReminder(userEmail, 1L);
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
       assertThat(response.getBody()).contains("1");
    }

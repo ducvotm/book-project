@@ -4,6 +4,7 @@ import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.model.KindleHighLight;
 import com.duke.bookproject.book.service.EmailService;
+import com.duke.bookproject.book.service.HighlightReminderService;
 import com.duke.bookproject.book.service.KindleHighLightService;
 import com.duke.bookproject.book.service.KindleHiglightsParser;
 import com.duke.bookproject.constant.EmailConstant;
@@ -35,15 +36,17 @@ public class KindleHighLightController {
 	private final KindleHiglightsParser parser;
 	private final EmailService emailService;
 	private final UserService userService;
+	private final HighlightReminderService reminderService;
 
 	private static final String HIGHLIGHT_NOT_FOUND_ERROR_MESSAGE = "Could not find highlight with ID %d";
 
 	public KindleHighLightController(KindleHighLightService service, KindleHiglightsParser parser,
-			EmailService emailService, UserService userService) {
+			EmailService emailService, UserService userService, HighlightReminderService reminderService) {
 		this.service = service;
 		this.parser = parser;
 		this.emailService = emailService;
 		this.userService = userService;
+		this.reminderService = reminderService;
 	}
 
 	@GetMapping
@@ -62,7 +65,15 @@ public class KindleHighLightController {
 	@PostMapping("/import")
 	public ResponseEntity<String> importHighlights(@RequestBody String fileContent) {
 		List<KindleHighLight> highlights = parser.parseMultipleHighlights(fileContent);
-		service.saveAll(highlights);
+		List<KindleHighLight> savedHighlights = service.saveAll(highlights);
+		
+		User currentUser = userService.getCurrentUser();
+		String userEmail = currentUser.getEmail();
+		
+		for (KindleHighLight highlight : savedHighlights) {
+			reminderService.createReminder(userEmail, highlight.getId());
+		}
+		
 		String message = "Imported " + highlights.size() + " highlights";
 		return ResponseEntity.ok(message);
 	}

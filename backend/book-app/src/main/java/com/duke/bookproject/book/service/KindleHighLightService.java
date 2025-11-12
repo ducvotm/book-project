@@ -32,8 +32,8 @@ public class KindleHighLightService {
       repository.save(highlight);
    }
 
-   public void saveAll(@NonNull List<KindleHighLight> highlights) {
-      repository.saveAll(highlights);
+   public List<KindleHighLight> saveAll(@NonNull List<KindleHighLight> highlights) {
+      return repository.saveAll(highlights);
    }
 
    public void delete(@NonNull KindleHighLight highlight) {
