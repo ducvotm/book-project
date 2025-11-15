@@ -3,32 +3,26 @@ package com.duke.bookproject.book.service;
 import com.duke.bookproject.book.model.HighlightReminder;
 import com.duke.bookproject.book.repository.HighlightReminderRepository;
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 @Service
+public class HighlightReminderService {
 
-	
+	private final HighlightReminderRepository repository;
 
-	
-	
-	
-
-	blic HighlightReminderService(HighlightReminderRepository repository) {
+	public HighlightReminderService(HighlightReminderRepository repository) {
 		this.repository = repository;
 	}
 
 	public void createReminder(@NonNull String userEmail, @NonNull Long highlightId) {
-		High
-
-	ightReminder reminder = HighlightReminder.dailyReminder(userEmail, highlightId);
+		HighlightReminder reminder = HighlightReminder.dailyReminder(userEmail, highlightId);
 		repository.save(reminder);
 	}
 
-	public List<HighlightRemider> findRemindersDueToday() {
+	public List<HighlightReminder> findRemindersDueToday() {
 		return repository.findByNextReminderDateAndEnabled(LocalDate.now(), true);
 	}
 

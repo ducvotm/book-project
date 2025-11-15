@@ -44,7 +44,8 @@ class KindleHighLightControllerTest {
       mockedEmailService = mock(EmailService.class);
       mockedUserService = mock(UserService.class);
       mockedReminderService = mock(HighlightReminderService.class);
-      controller = new KindleHighLightController(mockedService, mockedParser, mockedEmailService, mockedUserService, mockedReminderService);
+      controller = new KindleHighLightController(mockedService, mockedParser, mockedEmailService, mockedUserService,
+            mockedReminderService);
    }
 
    @Test

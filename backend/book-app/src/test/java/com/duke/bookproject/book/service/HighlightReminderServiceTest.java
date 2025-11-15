@@ -10,9 +10,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class HighlightReminderServiceTest {
@@ -43,5 +48,36 @@ class HighlightReminderServiceTest {
 		assertThat(saved.getHighlightId()).isEqualTo(highlightId);
 		assertThat(saved.getNextReminderDate()).isEqualTo(today.plusDays(1));
 		assertThat(saved.isEnabled()).isTrue();
+	}
+
+	@Test
+	void shouldFindRemindersDueToday_whenCalled() {
+		LocalDate today = LocalDate.now();
+		HighlightReminder reminder1 = HighlightReminder.builder()
+				.id(1L)
+				.userEmail("user1@example.com")
+				.highlightId(10L)
+				.nextReminderDate(today)
+				.enabled(true)
+				.build();
+
+		HighlightReminder reminder2 = HighlightReminder.builder()
+				.id(2L)
+				.userEmail("user2@example.com")
+				.highlightId(20L)
+				.nextReminderDate(today)
+				.enabled(true)
+				.build();
+
+		List<HighlightReminder> expectedReminders = Arrays.asList(reminder1, reminder2);
+
+		when(repository.findByNextReminderDateAndEnabled(any(LocalDate.class), eq(true)))
+				.thenReturn(expectedReminders);
+
+		List<HighlightReminder> result = service.findRemindersDueToday();
+
+		verify(repository).findByNextReminderDateAndEnabled(today, true);
+		assertThat(result).hasSize(2);
+		assertThat(result).containsExactlyInAnyOrderElementsOf(expectedReminders);
 	}
 }
