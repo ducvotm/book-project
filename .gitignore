@@ -36,3 +36,23 @@ build/
 .env.*
 .cursor/rules/
 *.code-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+*.log.*
+
+# Coverage reports (JaCoCo)
+**/jacoco.exec
+**/jacoco/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
