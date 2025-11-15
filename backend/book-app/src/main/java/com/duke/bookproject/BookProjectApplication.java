@@ -23,9 +23,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackageClasses = BookProjectApplication.class)
 @ConfigurationPropertiesScan
+@EnableScheduling
 public class BookProjectApplication {
 
   @Bean
