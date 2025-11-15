@@ -6,6 +6,7 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,4 +27,10 @@ public class HighlightReminderService {
 		return repository.findByNextReminderDateAndEnabled(LocalDate.now(), true);
 	}
 
+    public void updateNextReminderDate(HighlightReminder reminder) {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        reminder.setNextReminderDate(tomorrow);
+        repository.save(reminder);
+
+    }
 }

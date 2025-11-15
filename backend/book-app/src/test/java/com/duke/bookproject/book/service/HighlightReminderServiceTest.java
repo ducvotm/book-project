@@ -80,4 +80,30 @@ class HighlightReminderServiceTest {
 		assertThat(result).hasSize(2);
 		assertThat(result).containsExactlyInAnyOrderElementsOf(expectedReminders);
 	}
+
+	@Test
+	void shouldUpdateNextReminderDateToTomorrow_whenReminderIsUpdated() {
+		LocalDate today = LocalDate.now();
+		LocalDate tomorrow = today.plusDays(1);
+
+		HighlightReminder reminder = HighlightReminder.builder()
+				.id(1L)
+				.userEmail("user@example.com")
+				.highlightId(42L)
+				.nextReminderDate(today)
+				.enabled(true)
+				.build();
+
+		service.updateNextReminderDate(reminder);
+
+		ArgumentCaptor<HighlightReminder> captor = ArgumentCaptor.forClass(HighlightReminder.class);
+		verify(repository).save(captor.capture());
+
+		HighlightReminder updated = captor.getValue();
+		assertThat(updated.getNextReminderDate()).isEqualTo(tomorrow);
+		assertThat(updated.getId()).isEqualTo(1L);
+		assertThat(updated.getUserEmail()).isEqualTo("user@example.com");
+		assertThat(updated.getHighlightId()).isEqualTo(42L);
+		assertThat(updated.isEnabled()).isTrue();
+	}
 }
