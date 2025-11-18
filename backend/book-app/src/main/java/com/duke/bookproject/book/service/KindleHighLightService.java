@@ -24,8 +24,12 @@ public class KindleHighLightService {
       return repository.findById(id);
    }
 
-   public List<KindleHighLight> findAll() {
-      return repository.findAll();
+   public Optional<KindleHighLight> findByIdAndUserEmail(@NonNull Long id, @NonNull String userEmail) {
+      return repository.findByIdAndUserEmail(id, userEmail);
+   }
+
+   public List<KindleHighLight> findAllByUserEmail(@NonNull String userEmail) {
+      return repository.findByUserEmail(userEmail);
    }
 
    public void save(@NonNull KindleHighLight highlight) {
@@ -38,13 +42,5 @@ public class KindleHighLightService {
 
    public void delete(@NonNull KindleHighLight highlight) {
       repository.delete(highlight);
-   }
-
-   public void deleteAll() {
-      repository.deleteAll();
-   }
-
-   public Long count() {
-      return repository.count();
    }
 }

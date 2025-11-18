@@ -51,12 +51,16 @@ public class KindleHighLightController {
 
 	@GetMapping
 	public List<KindleHighLight> findAll() {
-		return service.findAll();
+		User currentUser = userService.getCurrentUser();
+		String userEmail = currentUser.getEmail();
+		return service.findAllByUserEmail(userEmail);
 	}
 
 	@GetMapping("/{id:[0-9]+}")
 	public KindleHighLight findById(@PathVariable Long id) {
-		return service.findById(id)
+		User currentUser = userService.getCurrentUser();
+		String userEmail = currentUser.getEmail();
+		return service.findByIdAndUserEmail(id, userEmail)
 				.orElseThrow(() -> new ResponseStatusException(
 						HttpStatus.NOT_FOUND,
 						String.format(HIGHLIGHT_NOT_FOUND_ERROR_MESSAGE, id)));
@@ -66,14 +70,14 @@ public class KindleHighLightController {
 	public ResponseEntity<String> importHighlights(@RequestBody String fileContent) {
 		List<KindleHighLight> highlights = parser.parseMultipleHighlights(fileContent);
 		List<KindleHighLight> savedHighlights = service.saveAll(highlights);
-		
+
 		User currentUser = userService.getCurrentUser();
 		String userEmail = currentUser.getEmail();
-		
+
 		for (KindleHighLight highlight : savedHighlights) {
 			reminderService.createReminder(userEmail, highlight.getId());
 		}
-		
+
 		String message = "Imported " + highlights.size() + " highlights";
 		return ResponseEntity.ok(message);
 	}
@@ -81,7 +85,9 @@ public class KindleHighLightController {
 	@DeleteMapping("/{id:[0-9]+}")
 	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<String> delete(@PathVariable Long id) {
-		Optional<KindleHighLight> highlightToDelete = service.findById(id);
+		User currentUser = userService.getCurrentUser();
+		String userEmail = currentUser.getEmail();
+		Optional<KindleHighLight> highlightToDelete = service.findByIdAndUserEmail(id, userEmail);
 		if (highlightToDelete.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(String.format(HIGHLIGHT_NOT_FOUND_ERROR_MESSAGE, id));
@@ -93,14 +99,13 @@ public class KindleHighLightController {
 
 	@PostMapping("/email")
 	public ResponseEntity<String> emailHighlights() throws MessagingException {
-		List<KindleHighLight> highlights = service.findAll();
+		User currentUser = userService.getCurrentUser();
+		String userEmail = currentUser.getEmail();
+		List<KindleHighLight> highlights = service.findAllByUserEmail(userEmail);
 
 		if (highlights.isEmpty()) {
 			return ResponseEntity.ok("No highlights to email");
 		}
-
-		User currentUser = userService.getCurrentUser();
-		String userEmail = currentUser.getEmail();
 		String username = emailService.getUsernameFromEmail(userEmail);
 
 		List<Map<String, String>> highlightMaps = new ArrayList<>();
