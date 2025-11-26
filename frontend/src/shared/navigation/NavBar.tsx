@@ -15,23 +15,20 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React from 'react'
-import './NavBar.css'
-import {
-    ExitToApp,
-    MenuBook,
-    Settings,
-    TrackChanges,
-    TrendingUp,
-  } from '@material-ui/icons'
-import SearchIcon from "@material-ui/icons/Search";
-import logo from '../media/logo/logo-two-lines-white@1x.png'
-import darkLogo from '../media/logo/dark-logo.png';
-import { HOME, MY_BOOKS, GOAL, STATS, SETTINGS, SIGN_IN, SEARCH} from '../routes'
-import { useTheme } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom'
-import { makeStyles, MuiThemeProvider } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+import { makeStyles, MuiThemeProvider, useTheme } from '@material-ui/core/styles';
+import {
+  ExitToApp,
+  Highlight,
+  MenuBook,
+  Settings,
+} from '@material-ui/icons';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import darkLogo from '../media/logo/dark-logo.png';
+import logo from '../media/logo/logo-two-lines-white@1x.png';
+import { HOME, KINDLE_HIGHLIGHTS, MY_BOOKS, SETTINGS, SIGN_IN } from '../routes';
+import './NavBar.css';
   
   const useStyles = makeStyles({
     button: {
@@ -74,9 +71,7 @@ export function NavBar(): JSX.Element {
             </div>
             <div className="nav-links" id="nav-links-top">
               <NavItem icon={<MenuBook />} itemText={"My Books"} goTo={MY_BOOKS} />
-              <NavItem icon={<TrackChanges />} itemText={"Goals"} goTo={GOAL} />
-              <NavItem icon={<TrendingUp />} itemText={"Statistics"} goTo={STATS} />
-              <NavItem icon={<SearchIcon />} itemText={"Search"} goTo={SEARCH} />
+              <NavItem icon={<Highlight />} itemText={"Highlights"} goTo={KINDLE_HIGHLIGHTS} />
             </div>
             <div className="nav-links">
               <NavItem icon={<Settings />} itemText={"Settings"} goTo={SETTINGS} />

@@ -45,6 +45,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -60,6 +62,7 @@ import java.util.Set;
 
 @Service
 public class UserService {
+  private static final Logger logger = LoggerFactory.getLogger(UserService.class);
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
@@ -88,11 +91,10 @@ public class UserService {
 
   public User register(@NonNull UserToRegisterDto userToRegisterDto)
       throws UserAlreadyRegisteredException {
-    User userToRegister =
-        User.builder()
-            .email(userToRegisterDto.getUsername())
-            .password(userToRegisterDto.getPassword())
-            .build();
+    User userToRegister = User.builder()
+        .email(userToRegisterDto.getUsername())
+        .password(userToRegisterDto.getPassword())
+        .build();
 
     Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     Set<ConstraintViolation<User>> constraintViolations = validator.validate(userToRegister);
@@ -112,12 +114,10 @@ public class UserService {
   }
 
   private User createNewUser(User user) {
-    Role userRole =
-        roleRepository
-            .findByRole(RoleType.USER.toString())
-            .orElseThrow(
-                () ->
-                    new AuthenticationServiceException("The default user role could not be found"));
+    Role userRole = roleRepository
+        .findByRole(RoleType.USER.toString())
+        .orElseThrow(
+            () -> new AuthenticationServiceException("The default user role could not be found"));
     return User.builder()
         .email(user.getEmail())
         .password(passwordEncoder.encode(user.getPassword()))
@@ -127,10 +127,34 @@ public class UserService {
   }
 
   public User getCurrentUser() {
-    String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    logger.debug("Getting current user from security context");
+
+    var securityContext = SecurityContextHolder.getContext();
+    if (securityContext == null) {
+      logger.error("SecurityContext is null");
+      throw new CurrentUserNotFoundException("Security context is null - user is not authenticated");
+    }
+
+    var authentication = securityContext.getAuthentication();
+    if (authentication == null) {
+      logger.error("Authentication is null in security context");
+      throw new CurrentUserNotFoundException("Authentication is null - user is not authenticated");
+    }
+
+    String email = authentication.getName();
+    logger.debug("Retrieved email from authentication: {}", email);
+
+    if (email == null || email.isEmpty()) {
+      logger.error("Email from authentication is null or empty");
+      throw new CurrentUserNotFoundException("Email from authentication is null or empty");
+    }
+
     return userRepository
         .findByEmail(email)
-        .orElseThrow(() -> new CurrentUserNotFoundException("Current user could not be found"));
+        .orElseThrow(() -> {
+          logger.error("User not found in repository for email: {}", email);
+          return new CurrentUserNotFoundException("Current user could not be found");
+        });
   }
 
   // TODO: this can be removed once we are no longer populating test data
@@ -147,10 +171,9 @@ public class UserService {
   }
 
   private void authenticateUser(User user) {
-    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-        new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-    Authentication authResult =
-        authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+        user.getEmail(), user.getPassword());
+    Authentication authResult = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
 
     if (authResult.isAuthenticated()) {
       SecurityContextHolder.getContext().setAuthentication(authResult);
@@ -196,8 +219,7 @@ public class UserService {
    * @return true if password
    */
   public boolean isPasswordStrengthVeryStrong(String password) {
-    return new Zxcvbn().measure(password).getScore()
-        >= PasswordStrength.VERY_STRONG.getStrengthNum();
+    return new Zxcvbn().measure(password).getScore() >= PasswordStrength.VERY_STRONG.getStrengthNum();
   }
 
   private boolean isPasswordTooWeak(String password) {
@@ -245,7 +267,8 @@ public class UserService {
   private void removePredefinedShelfFromUserBooks() {
     List<PredefinedShelf> predefinedShelves = predefinedShelfService.findAllForLoggedInUser();
 
-    // Add all of the books in each predefined shelf to this set outside of the loop to
+    // Add all of the books in each predefined shelf to this set outside of the loop
+    // to
     // avoid a concurrent modification exception
     Set<Book> outerBooks = new HashSet<>();
     for (PredefinedShelf p : predefinedShelves) {

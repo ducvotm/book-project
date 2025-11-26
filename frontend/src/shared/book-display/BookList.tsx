@@ -15,12 +15,10 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { Component } from 'react'
+import { ArrowDropDown, ArrowDropUp } from "@material-ui/icons";
+import React, { Component } from 'react';
 import { Book } from '../types/Book';
 import './BookList.css';
-import { BOOK_OVERVIEW } from '../routes'
-import { Link } from 'react-router-dom';
-import {ArrowDropDown, ArrowDropUp} from "@material-ui/icons";
 
 const CHAR_LIMIT = 40;
 
@@ -110,9 +108,7 @@ export default class BookList extends Component <BookListProps, BookListProps> {
             </div>
           </div>
           {this.sortBooks(this.state.bookListData).map(book => (
-              <Link to={ BOOK_OVERVIEW + "/" + book.id }
-                    style={{ textDecoration: 'none', color: 'black' }} key={book.id}>
-                <div className="booklist-book">
+                <div className="booklist-book" key={book.id}>
 
                   <div className="booklist-book-thumbnail">
                     {book.title.length > CHAR_LIMIT ?
@@ -124,7 +120,6 @@ export default class BookList extends Component <BookListProps, BookListProps> {
                   <div className="booklist-book-genre">{book.bookGenre}</div>
                   <div className="booklist-book-rating">{book.rating}</div>
                 </div>
-              </Link>
           ))}
         </div>
     )

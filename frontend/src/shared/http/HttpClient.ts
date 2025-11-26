@@ -15,12 +15,8 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-import Verb from "./verb";
 import Endpoints from "../api/endpoints";
-import {
-    ApolloClient as ApolloClientBase,
-    InMemoryCache,
-} from "@apollo/client";
+import Verb from "./verb";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 let HttpClient: () => HttpClientBase;
@@ -36,7 +32,7 @@ let HttpClient: () => HttpClientBase;
     }
 })();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
 type HttpReponse = Promise<Record <string,any>>
 
 // Base class for managing HTTP requests
@@ -56,12 +52,21 @@ class HttpClientBase {
     get(url: string): any {
         if (this.headers["Authorization"] === null) {
             window.location.replace("http://localhost:3000/sign-in");
+            return Promise.reject("Not authenticated");
+        }
+        let fullUrl: string;
+        if (url.startsWith('http')) {
+            fullUrl = url;
+        } else {
+            const base = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+            const path = url.startsWith('/') ? url : '/' + url;
+            fullUrl = base + path;
         }
         const requestOptions = {
             method:Verb.GET,
             headers: this.headers,
         };
-        return fetch(url, requestOptions)
+        return fetch(fullUrl, requestOptions)
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -143,11 +148,5 @@ class HttpClientBase {
 }
 
 const httpClientInstance = HttpClient();
-export const apolloClient = new ApolloClientBase({
-    uri: 'http://localhost:8082/graphql',
-    cache: new InMemoryCache(),
-    headers:httpClientInstance.headers
-});
-
 export default httpClientInstance;
 

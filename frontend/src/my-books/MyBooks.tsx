@@ -25,14 +25,12 @@ import { Layout } from "../shared/components/Layout";
 import HttpClient from '../shared/http/HttpClient';
 import { NavBar } from "../shared/navigation/NavBar";
 import { Book } from '../shared/types/Book';
-import ImportModal from "./ImportModal";
 import "./MyBooks.css";
 import ShelfModal from "./ShelfModal";
 
 
 interface IState {
     showShelfModal: boolean;
-    showImportModal: boolean;
     showListView: boolean;
     bookList: Book[];
     readBooks: Book[];
@@ -48,7 +46,6 @@ class MyBooks extends Component<Record<string, unknown>, IState> {
         super(props);
         this.state = {
             showShelfModal: false,
-            showImportModal: false,
             showListView: false,
             bookList: [],
             readBooks: [],
@@ -59,8 +56,6 @@ class MyBooks extends Component<Record<string, unknown>, IState> {
         };
         this.onAddShelf = this.onAddShelf.bind(this);
         this.onAddShelfModalClose = this.onAddShelfModalClose.bind(this);
-        this.onImportBooks = this.onImportBooks.bind(this);
-        this.onImportModalClose = this.onImportModalClose.bind(this);
         this.onToggleListView = this.onToggleListView.bind(this);
         this.getBooks = this.getBooks.bind(this);
         this.getDidNotFinishBooks = this.getDidNotFinishBooks.bind(this);
@@ -153,18 +148,6 @@ class MyBooks extends Component<Record<string, unknown>, IState> {
         });
     }
 
-    onImportBooks(): void {
-        this.setState({
-            showImportModal: true,
-        });
-    }
-
-    onImportModalClose(): void {
-        this.setState({
-            showImportModal: false,
-        });
-    }
-
     onToggleListView(): void {
         this.setState({
             showListView: !this.state.showListView
@@ -181,14 +164,6 @@ class MyBooks extends Component<Record<string, unknown>, IState> {
                     disableElevation
                 >
                     Add Book
-            </Button>
-                <Button
-                    onClick={this.onImportBooks}
-                    variant="contained"
-                    color="secondary"
-                    disableElevation
-                >
-                    Import Books
             </Button>
                 <Button
                     onClick={this.onAddShelf}
@@ -225,10 +200,6 @@ class MyBooks extends Component<Record<string, unknown>, IState> {
                 <ShelfModal
                     open={this.state.showShelfModal}
                     onClose={this.onAddShelfModalClose}
-                />
-                <ImportModal
-                    open={this.state.showImportModal}
-                    onClose={this.onImportModalClose}
                 />
                 <div className="my-book-switch-container">
                     <div className="toggle-text">

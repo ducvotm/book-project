@@ -29,7 +29,7 @@ if [ ! -f "$KINDLE_FILE" ]; then
 fi
 
 echo "📝 Registering user $USERNAME..."
-REGISTER_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/register" \
+REGISTER_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/api/user" \
     -H "Content-Type: application/json" \
     -d "{\"username\":\"$USERNAME\",\"password\":\"$PASSWORD\"}")
 

@@ -15,40 +15,27 @@ You should have received a copy of the GNU General Public License along with thi
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-import Login from "./login/Login";
-import {useState} from 'react';
-import React from 'react';
 import { ThemeProvider } from '@material-ui/core/styles';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from 'react';
 import {
     BrowserRouter,
     Route,
 } from "react-router-dom";
-import Register from "./register/Register";
+import KindleHighlights from "./kindle-highlights/KindleHighlights";
+import Login from "./login/Login";
 import MyBooks from "./my-books/MyBooks";
+import Register from "./register/Register";
 import Settings from "./settings/Settings";
-import Goal from "./goal/Goal";
-import Stats from "./statistics/Stats";
-import Search from './shared/components/Search';
-import DeleteAccount from "./delete-account/DeleteAccount";
-import { theme as lightTheme, darkTheme} from './shared/theme';
-import BookOverview from "./book-overview/BookOverview";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { 
-    HOME, 
-    SIGN_IN, 
-    SIGN_UP,
-    BOOK_OVERVIEW,
-    MY_BOOKS, 
-    GOAL, 
-    SETTINGS, 
-    DELETE_ACCOUNT, 
-    STATS,
-    SEARCH
-} from "./shared/routes"
 import {
-    ApolloProvider,
-} from "@apollo/client";
-import { apolloClient } from './shared/http/HttpClient';
+    HOME,
+    KINDLE_HIGHLIGHTS,
+    MY_BOOKS,
+    SETTINGS,
+    SIGN_IN,
+    SIGN_UP
+} from "./shared/routes";
+import { darkTheme, theme as lightTheme } from './shared/theme';
 
 function App(): JSX.Element {
     const [theme, setTheme] = useState(lightTheme);
@@ -57,26 +44,20 @@ function App(): JSX.Element {
         theme === lightTheme ? setTheme(darkTheme) : setTheme(lightTheme)
     } 
     return (
-        <ApolloProvider client={apolloClient}>
         <ThemeProvider theme={theme}>
           <BrowserRouter>
               <Route exact path={HOME} component={Login} />
               <Route path={SIGN_IN} component={Login} />
               <Route path={SIGN_UP} component={Register} />
-              <Route path={BOOK_OVERVIEW + "/:id"} component={BookOverview} />
               <Route path={MY_BOOKS} component={MyBooks} />
-              <Route path={GOAL} component={Goal} />
-              <Route path={SEARCH} component={Search} />
               <Route 
                 path={SETTINGS} 
                 render={() => 
                 <Settings  theme={theme} toggleTheme={toggleTheme} />} 
               />
-              <Route path={DELETE_ACCOUNT} component={DeleteAccount} />
-              <Route path={STATS} component={Stats} />
+              <Route path={KINDLE_HIGHLIGHTS} component={KindleHighlights} />
           </BrowserRouter>
         </ThemeProvider>
-        </ApolloProvider>
     )
 }
 

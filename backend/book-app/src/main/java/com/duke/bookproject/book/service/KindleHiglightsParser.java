@@ -3,6 +3,7 @@ package com.duke.bookproject.book.service;
 import com.duke.bookproject.account.model.User;
 import com.duke.bookproject.account.service.UserService;
 import com.duke.bookproject.book.model.KindleHighLight;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class KindleHiglightsParser {
+	private static final Logger logger = LoggerFactory.getLogger(KindleHiglightsParser.class);
 	private final UserService userService;
 
 	public KindleHiglightsParser(UserService userService) {
@@ -43,7 +45,21 @@ public class KindleHiglightsParser {
 
 		String content = lines[3].trim();
 
-		String userEmail = userService.getCurrentUser().getEmail();
+		logger.debug("Attempting to get current user for highlight parsing");
+		User currentUser = userService.getCurrentUser();
+		if (currentUser == null) {
+			logger.error("getCurrentUser() returned null");
+			throw new IllegalStateException("Current user is null - cannot parse highlights without authenticated user");
+		}
+
+		String userEmail = currentUser.getEmail();
+		if (userEmail == null || userEmail.isEmpty()) {
+			logger.error("Current user email is null or empty. User ID: {}", currentUser.getId());
+			throw new IllegalStateException(
+					"Current user email is null or empty - cannot create highlight without user email");
+		}
+
+		logger.debug("Parsing highlight for user: {}", userEmail);
 
 		return KindleHighLight.builder()
 				.userEmail(userEmail)
